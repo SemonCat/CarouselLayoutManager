@@ -66,8 +66,6 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
     @Nullable
     private CarouselSavedState mPendingCarouselSavedState;
 
-    private int mVisibleCount;
-
     /**
      * @param orientation should be {@link #VERTICAL} or {@link #HORIZONTAL}
      */
@@ -120,10 +118,6 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
         }
         mLayoutHelper.mMaxVisibleItems = maxVisibleItems;
         requestLayout();
-    }
-
-    public void setVisibleCount(int visibleCount) {
-        mVisibleCount = visibleCount;
     }
 
     /**
@@ -348,7 +342,7 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
             addView(view);
             measureChildWithMargins(view, 0, 0);
 
-            mDecoratedChildWidth = getDecoratedMeasuredWidth(view) / mVisibleCount;
+            mDecoratedChildWidth = getDecoratedMeasuredWidth(view);
             mDecoratedChildHeight = getDecoratedMeasuredHeight(view);
             removeAndRecycleView(view, recycler);
 
@@ -579,13 +573,12 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
 
         final int dimenDiff;
         if (VERTICAL == mOrientation) {
-            dimenDiff = (getHeightNoPadding() - mDecoratedChildHeight) / mVisibleCount;
+            dimenDiff = (getHeightNoPadding() - mDecoratedChildHeight) / 2;
         } else {
-            dimenDiff = (getWidthNoPadding() - mDecoratedChildWidth) / mVisibleCount;
+            dimenDiff = (getWidthNoPadding() - mDecoratedChildWidth) / 2;
         }
         //noinspection NumericCastThatLosesPrecision
-        //return (int) Math.round(Math.signum(itemPositionDiff) * dimenDiff * smoothPosition);
-        return 0;
+        return (int) Math.round(Math.signum(itemPositionDiff) * dimenDiff * smoothPosition);
     }
 
     /**

@@ -44,9 +44,9 @@ public class CarouselPreviewActivity extends AppCompatActivity {
 
     private void initRecyclerView(final RecyclerView recyclerView, final CarouselLayoutManager layoutManager, final TestAdapter adapter) {
         // enable zoom effect. this line can be customized
-        layoutManager.setPostLayoutListener(new StoryCarouselPostLayoutListener());
-        layoutManager.setMaxVisibleItems(7);
-        layoutManager.setVisibleCount(7);
+        layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
+        layoutManager.setMaxVisibleItems(3);
+        //layoutManager.setVisibleCount(7);
 
         recyclerView.setLayoutManager(layoutManager);
         // we expect only fixed sized item for now
