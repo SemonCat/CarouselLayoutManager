@@ -7,12 +7,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.azoft.carousellayoutmanager.CarouselLayoutManager;
-import com.azoft.carousellayoutmanager.CarouselZoomPostLayoutListener;
 import com.azoft.carousellayoutmanager.CenterScrollListener;
 import com.azoft.carousellayoutmanager.DefaultChildSelectionListener;
 import com.azoft.carousellayoutmanager.StoryCarouselPostLayoutListener;
@@ -24,6 +26,10 @@ import java.util.Random;
 
 public class CarouselPreviewActivity extends AppCompatActivity {
 
+
+    private CarouselLayoutManager mCarouselLayoutManager;
+    private TestAdapter mTestAdapter;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,21 +38,21 @@ public class CarouselPreviewActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
-        final TestAdapter adapter = new TestAdapter();
+        mTestAdapter = new TestAdapter();
 
         // create layout manager with needed params: vertical, cycle
-        initRecyclerView(binding.listHorizontal, new CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, true), adapter);
-        //initRecyclerView(binding.listVertical, new CarouselLayoutManager(CarouselLayoutManager.VERTICAL, true), adapter);
-
-        // fab button will add element to the end of the list
-
+        mCarouselLayoutManager = new CarouselLayoutManager();
+        initRecyclerView(binding.listHorizontal, mCarouselLayoutManager, mTestAdapter);
     }
 
     private void initRecyclerView(final RecyclerView recyclerView, final CarouselLayoutManager layoutManager, final TestAdapter adapter) {
         // enable zoom effect. this line can be customized
-        layoutManager.setPostLayoutListener(new CarouselZoomPostLayoutListener());
-        layoutManager.setMaxVisibleItems(3);
-        //layoutManager.setVisibleCount(7);
+        int maxVisibleItem = 2;
+
+        StoryCarouselPostLayoutListener storyCarouselPostLayoutListener = new StoryCarouselPostLayoutListener();
+        storyCarouselPostLayoutListener.setMaxVisibleItems(maxVisibleItem);
+        layoutManager.setPostLayoutListener(storyCarouselPostLayoutListener);
+        layoutManager.setMaxVisibleItems(maxVisibleItem);
 
         recyclerView.setLayoutManager(layoutManager);
         // we expect only fixed sized item for now
@@ -84,13 +90,17 @@ public class CarouselPreviewActivity extends AppCompatActivity {
 
         @SuppressWarnings("UnsecureRandomNumberGeneration")
         private final Random mRandom = new Random();
-        private final int[] mColors;
-        private final int[] mPosition;
-        private int mItemsCount = 10;
+        private int[] mColors;
+        private int[] mPosition;
+        private int mItemsCount = 1;
 
         TestAdapter() {
             mColors = new int[mItemsCount];
             mPosition = new int[mItemsCount];
+            generateColor();
+        }
+
+        private void generateColor() {
             for (int i = 0; mItemsCount > i; ++i) {
                 //noinspection MagicNumber
                 mColors[i] = Color.argb(255, mRandom.nextInt(256), mRandom.nextInt(256), mRandom.nextInt(256));
@@ -114,6 +124,14 @@ public class CarouselPreviewActivity extends AppCompatActivity {
         public int getItemCount() {
             return mItemsCount;
         }
+
+        public void setItemsCount(int itemsCount) {
+            mItemsCount = itemsCount;
+            mColors = new int[mItemsCount];
+            mPosition = new int[mItemsCount];
+            generateColor();
+            notifyDataSetChanged();
+        }
     }
 
     private static class TestViewHolder extends RecyclerView.ViewHolder {
@@ -125,5 +143,32 @@ public class CarouselPreviewActivity extends AppCompatActivity {
 
             mItemViewBinding = itemViewBinding;
         }
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.new_data:
+
+                int srcCount = mTestAdapter.getItemCount();
+
+                /*
+                if (srcCount < 7) {
+                    mCarouselLayoutManager.setCircleLayout(false);
+                }else {
+                    mCarouselLayoutManager.setCircleLayout(true);
+                }
+                */
+
+
+                mTestAdapter.setItemsCount(srcCount + 1);
+                break;
+        }
+        return true;
     }
 }

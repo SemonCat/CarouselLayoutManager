@@ -12,6 +12,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -51,7 +52,7 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
     private Integer mDecoratedChildHeight;
 
     private final int mOrientation;
-    private final boolean mCircleLayout;
+    private boolean mCircleLayout;
 
     private int mPendingScrollPosition;
 
@@ -63,6 +64,8 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
     private int mCenterItemPosition = INVALID_POSITION;
     private int mItemsCount;
 
+    private boolean mAddItemMargin;
+
     @Nullable
     private CarouselSavedState mPendingCarouselSavedState;
 
@@ -72,6 +75,14 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
     @SuppressWarnings("unused")
     public CarouselLayoutManager(final int orientation) {
         this(orientation, CIRCLE_LAYOUT);
+    }
+
+    /**
+            * @param orientation should be {@link #VERTICAL} or {@link #HORIZONTAL}
+    */
+    @SuppressWarnings("unused")
+    public CarouselLayoutManager() {
+        this(HORIZONTAL, true);
     }
 
     /**
@@ -88,6 +99,11 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
         mOrientation = orientation;
         mCircleLayout = circleLayout;
         mPendingScrollPosition = INVALID_POSITION;
+    }
+
+    public void setCircleLayout(boolean circleLayout) {
+        mCircleLayout = circleLayout;
+        requestLayout();
     }
 
     /**
@@ -127,6 +143,10 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
     @SuppressWarnings("unused")
     public int getMaxVisibleItems() {
         return mLayoutHelper.mMaxVisibleItems;
+    }
+
+    public void setAddItemMargin(boolean addItemMargin) {
+        mAddItemMargin = addItemMargin;
     }
 
     @Override
@@ -578,7 +598,11 @@ public class CarouselLayoutManager extends RecyclerView.LayoutManager implements
             dimenDiff = (getWidthNoPadding() - mDecoratedChildWidth) / 2;
         }
         //noinspection NumericCastThatLosesPrecision
-        return (int) Math.round(Math.signum(itemPositionDiff) * dimenDiff * smoothPosition);
+        if (mAddItemMargin) {
+            return (int) Math.round(Math.signum(itemPositionDiff) * dimenDiff * smoothPosition);
+        } else {
+            return 0;
+        }
     }
 
     /**
